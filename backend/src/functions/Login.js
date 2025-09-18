@@ -4,8 +4,13 @@ app.http('Login', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
-        const name = request.query.get('name') || await request.text() || 'world';
-
-        return { body: `Hello, ${name}!` };
+        const code = request.query.get('code')
+        if (code == process.env.CLIENT_A_CODE) {
+          return { body: `Hello, Client A!` };
+        } else if (code == process.env.CLIENT_B_CODE) {
+          return { body: `Hello, Client B!` }
+        }
+        return { status: 401,
+          body: `Invalid code!` };
     }
 });
