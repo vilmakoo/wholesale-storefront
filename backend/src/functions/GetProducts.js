@@ -1,40 +1,87 @@
 const { app } = require('@azure/functions');
+const fs = require('fs');
+const path = require('path');
+const csvParser = require('csv-parser');
+
+/**
+ * Asynchronously reads and parses a CSV file for a given client ID.
+ */
+function getProductData(clientId) {
+    return new Promise((resolve, reject) => {
+        const filePath = path.join(__dirname, `../../../data/client_${clientId}_data.csv`);
+
+        if (!fs.existsSync(filePath)) {
+            return reject(new Error(`Data file not found for client ${clientId}.`));
+        }
+
+        const fullResults = [];
+
+        fs.createReadStream(filePath)
+            .pipe(csvParser({
+                // This function transforms CSV headers to camelCase keys (e.g., "Product Name" -> "productName")
+                mapHeaders: ({ header }) => header.replace(/ /g, '_').replace(/([_]\w)/g, g => g[1].toUpperCase()).replace(/^[A-Z]/, (match) => match.toLowerCase()),
+                // This function attempts to convert strings to numbers and booleans
+                mapValues: ({ value }) => {
+                    const number = Number(value);
+                    if (!isNaN(number) && value.trim() !== '') {
+                        return number;
+                    }
+                    return value;
+                }
+            }))
+            .on('data', (data) => fullResults.push(data))
+            .on('end', () => {
+                const necessaryData = fullResults.map(product => ({
+                    productCode: product.productCode,
+                    availableStock: product.availableStock,
+                    retailPrice: product.retailPrice
+                }));
+                resolve(necessaryData);
+            })
+            .on('error', (error) => {
+                reject(error);
+            });
+    });
+}
+
 
 app.http('GetProducts', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
-        const clientId = request.query.get('clientId')
-        let productData;
-        
-        if (clientId == 1) {
-          productData = [
-            {
-              'product code': 'aaaa',
-              'available stockstock': 1111,
-              'retail price': 10
-            },
-            {
-              'product code': 'bbbb',
-              'available stockstock': 1212,
-              'retail price': 303
-            }
-          ]
-        } else if (clientId == 2) {
-          productData = [
-            {
-              'product code': 'aaaa',
-              'available stockstock': 2222,
-              'retail price': 20
-            },
-            {
-              'product code': 'bbbb',
-              'available stockstock': 3434,
-              'retail price': 404
-            }
-          ]
+        const clientId = request.query.get('clientId');
+
+        if (!clientId) {
+            return {
+                status: 400,
+                jsonBody: {
+                    error: "Please give a 'clientId' in the query string. Expecting a or b."
+                }
+            };
         }
 
-        return { jsonBody: productData };
+        try {
+            const productData = await getProductData(clientId);
+
+            if (productData) {
+                const response = {
+                    message: `Product data for client ${clientId}`,
+                    products: productData
+                };
+
+                return { jsonBody: response };
+            } else {
+                return {
+                    status: 404,
+                    jsonBody: { error: `No product data found for clientId '${clientId}'.` }
+                };
+            }
+        } catch (error) {
+            context.log(`Error processing request for client ${clientId}:`, error.message);
+            return {
+                status: 500,
+                jsonBody: { error: 'An internal error occurred while retrieving product data.' }
+            }
+        }
     }
 });
