@@ -8,10 +8,10 @@ const csvParser = require('csv-parser');
  */
 function getProductData(clientId) {
     return new Promise((resolve, reject) => {
-        const filePath = path.join(__dirname, `../../../data/client_${clientId}_data.csv`);
+        const filePath = path.join(__dirname, `../../../data/${clientId}_data.csv`);
 
         if (!fs.existsSync(filePath)) {
-            return reject(new Error(`Data file not found for client ${clientId}.`));
+            return reject(new Error(`Data file not found for ${clientId}.`));
         }
 
         const fullResults = [];
@@ -55,7 +55,7 @@ app.http('GetProducts', {
             return {
                 status: 400,
                 jsonBody: {
-                    error: "Please give a 'clientId' in the query string. Expecting a or b."
+                    error: "Please give a 'clientId' in the query string. Expecting client_a or client_b."
                 }
             };
         }
@@ -65,7 +65,7 @@ app.http('GetProducts', {
 
             if (productData) {
                 const response = {
-                    message: `Product data for client ${clientId}`,
+                    message: `Product data for ${clientId}`,
                     products: productData
                 };
 
@@ -77,7 +77,7 @@ app.http('GetProducts', {
                 };
             }
         } catch (error) {
-            context.log(`Error processing request for client ${clientId}:`, error.message);
+            context.log(`Error processing request for ${clientId}:`, error.message);
             return {
                 status: 500,
                 jsonBody: { error: 'An internal error occurred while retrieving product data.' }
