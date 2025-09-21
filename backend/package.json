@@ -1,17 +1,15 @@
 {
-  "name": "",
+  "name": "digital-wholesale-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "src/functions/*.js",
+  "description": "Backend API for the Digital Wholesale Storefront",
   "scripts": {
     "start": "func start",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
-    "dotenv": "^17.2.2"
+    "csv-parser": "^3.0.0"
   },
-  "devDependencies": {
-    "azure-functions-core-tools": "^4.x"
-  }
+  "main": "src/functions/*.js",
+  "devDependencies": {}
 }
