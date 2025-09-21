@@ -8,7 +8,7 @@ const csvParser = require('csv-parser');
  */
 function getProductData(clientId) {
     return new Promise((resolve, reject) => {
-        const filePath = path.join(__dirname, `../../../data/${clientId}_data.csv`);
+        const filePath = path.join(__dirname, `../../data/${clientId}_data.csv`);
 
         if (!fs.existsSync(filePath)) {
             return reject(new Error(`Data file not found for ${clientId}.`));

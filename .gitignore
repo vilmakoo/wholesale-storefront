@@ -1,26 +1,57 @@
-# Node modules
-node_modules/
-npm-debug.log
-yarn-error.log
-
-# Azure Functions local files
-local.settings.json
-.vscode/
-
-# Build and cache
-dist/
-out/
-coverage/
-.tmp/
-.terraform/
+# Dependencies
+/node_modules
+/backend/node_modules
+/frontend/node_modules
 
 # Logs
+logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# OS files
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
 
-infra/terraform.tfstate
-infra/terraform.tfstate.backup
-infra/.terraform.lock.hcl
+# Editor directories and files
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build artifacts
+/frontend/.next/
+/frontend/out/
+
+# Local Environment & Secrets
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+
+# Local Environment & Secrets
+/backend/local.settings.json
+
+# Local Terraform directories
+.terraform/
+
+# State files
+*.tfstate
+*.tfstate.*
+
+# Plan files
+*.tfplan
+
+# Variable definition files
+*.tfvars
+*.tfvars.json
+
+# Lock file
+.terraform.lock.hcl

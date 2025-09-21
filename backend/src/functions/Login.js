@@ -19,12 +19,12 @@ app.http('Login', {
 
             if (submittedCode === process.env.CLIENT_A_CODE) {
                 clientData = {
-                    clientId: 'clientA',
+                    clientId: 'client_a',
                     name: 'Client A'
                 };
             } else if (submittedCode === process.env.CLIENT_B_CODE) {
                 clientData = {
-                    clientId: 'clientB',
+                    clientId: 'client_b',
                     name: 'Client B'
                 };
             }
