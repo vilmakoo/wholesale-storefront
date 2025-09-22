@@ -3,11 +3,23 @@ const fs = require('fs');
 const path = require('path');
 const csvParser = require('csv-parser');
 
+const productCache = {
+    client_a: null,
+    client_b: null
+};
+
 /**
  * Asynchronously reads and parses a CSV file for a given client ID.
+ * Uses an in-memory cache to avoid re-reading the file if data is already loaded.
  */
-function getProductData(clientId) {
+function getProductData(clientId, context) {
     return new Promise((resolve, reject) => {
+        if (productCache[clientId]) {
+            context.log(`Returning cached data for ${clientId}.`);
+            return resolve(productCache[clientId]);
+        }
+
+        context.log(`Cache missing for ${clientId}. Reading and parsing from file...`);
         const filePath = path.join(__dirname, `../../data/${clientId}_data.csv`);
 
         if (!fs.existsSync(filePath)) {
@@ -23,19 +35,21 @@ function getProductData(clientId) {
                 // This function attempts to convert strings to numbers and booleans
                 mapValues: ({ value }) => {
                     const number = Number(value);
-                    if (!isNaN(number) && value.trim() !== '') {
-                        return number;
-                    }
+                    if (!isNaN(number) && value.trim() !== '') { return number; }
                     return value;
                 }
             }))
             .on('data', (data) => fullResults.push(data))
             .on('end', () => {
                 const necessaryData = fullResults.map(product => ({
+                    productName: product.productName,
                     productCode: product.productCode,
                     availableStock: product.availableStock,
                     retailPrice: product.retailPrice
                 }));
+                productCache[clientId] = necessaryData;
+                context.log(`Successfully parsed and cached data for ${clientId}.`);
+
                 resolve(necessaryData);
             })
             .on('error', (error) => {
@@ -46,7 +60,7 @@ function getProductData(clientId) {
 
 
 app.http('GetProducts', {
-    methods: ['GET', 'POST'],
+    methods: ['GET'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
         const clientId = request.query.get('clientId');
@@ -54,28 +68,19 @@ app.http('GetProducts', {
         if (!clientId) {
             return {
                 status: 400,
-                jsonBody: {
-                    error: "Please give a 'clientId' in the query string. Expecting client_a or client_b."
-                }
+                jsonBody: { error: "Please give a 'clientId' in the query string. Expecting client_a or client_b." }
             };
         }
 
         try {
-            const productData = await getProductData(clientId);
+            const productData = await getProductData(clientId, context);
 
-            if (productData) {
-                const response = {
-                    message: `Product data for ${clientId}`,
-                    products: productData
-                };
-
-                return { jsonBody: response };
-            } else {
-                return {
-                    status: 404,
-                    jsonBody: { error: `No product data found for clientId '${clientId}'.` }
-                };
-            }
+            const response = {
+                message: `Product data for ${clientId}`,
+                products: productData
+            };
+            return { jsonBody: response };
+            
         } catch (error) {
             context.log(`Error processing request for ${clientId}:`, error.message);
             return {
