@@ -2,7 +2,7 @@
 
 A full-stack, serverless wholesale storefront application. This project, built as an assignment for a Full-Stack Developer position, uses a Next.js frontend and an Azure Functions API to serve client-specific pricing and stock levels. The entire cloud infrastructure is managed as code with Terraform. The frontend is hosted on Vercel and the backend API on Azure Function Apps.
 
-The goal of this assignment was to create an application where two different wholesale clients (Client A and Client B) can log in with a unique code and see the same product catalog but with client-specific stock levels and pricing.
+The goal of the assignment was to create an application where two different wholesale clients (Client A and Client B) can log in with a unique code and see the same product catalog but with client-specific stock levels and pricing.
 
 ### ➡️ [Live Application](https://wholesale-storefront-roan.vercel.app/)
 
@@ -21,7 +21,8 @@ The goal of this assignment was to create an application where two different who
 **Clone the repository:**
 ```bash
 git clone https://github.com/vilmakoo/wholesale-storefront.git
-cd wholesale-storefront```
+cd wholesale-storefront
+```
 
 **Setup & Run Backend API:**
 ```bash
@@ -56,10 +57,14 @@ The entire cloud infrastructure can be provisioned with Terraform.
 # Navigate to the infrastructure directory
 cd infra
 
-# Authenticate with Azure
+# Log in to your Azure account
 az login
 
-# Initialize Terraform
+# Configure the API's CORS policy by creating a `terraform.tfvars` file to store the Vercel app's url.
+# Remember to replace the placeholder with your app's url.
+cp terraform.tfvars.example terraform.tfvars
+
+# Initialize Terraform (downloads the Azure provider)
 terraform init
 
 # Plan and review the deployment
@@ -74,7 +79,7 @@ terraform apply
 
 The core logic is in the `GetProducts` Azure Function.
 1.  The frontend authenticates using a client code (e.g., `1234`).
-2.  The `/Login` API validates this code against environment variables and returns a unique `clientId` (e.g., `client_a`).
+2.  The `/Login` API validates this code against environment variables and returns a `clientId` (e.g., `client_a`).
 3.  The frontend stores this `clientId` in session storage.
 4.  When fetching the product catalog, the frontend sends the `clientId` as a query parameter to the `/GetProducts` API (e.g., `.../api/GetProducts?clientId=client_a`).
 5.  The `GetProducts` function uses this `clientId` to select and read from the corresponding CSV data file (`client_a_data.csv` or `client_b_data.csv`), ensuring that the correct stock and price information is returned. (The .xls-files provided in the assignment were manually converted into .csv.)
@@ -83,10 +88,11 @@ To prevent inefficient file reads on every API call, the `GetProducts` function 
 
 All sensitive values (client codes, API keys) are stored as environment variables.
 
-`local.settings.json` is used for local development and is explicitly excluded from Git via `.gitignore`. For the deployed application, secrets are injected as Application Settings via Terraform.
+`local.settings.json` is used for local development and is excluded from Git via `.gitignore`. For the deployed application, secrets are injected as Application Settings via Terraform.
 
 The Terraform state files (`.tfstate`), which contain sensitive output from the cloud provider, are also excluded from Git to prevent credential leaks.
 
+TODO: If developed further, there are some features that could be implemented.
 
 ## Example Login Codes
 

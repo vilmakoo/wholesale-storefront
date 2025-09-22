@@ -29,6 +29,11 @@ variable "app_name" {
   default     = "wsstoreappvilmakoo1"
 }
 
+variable "frontend_url" {
+  description = "The public URL of the deployed frontend application (for CORS)."
+  type        = string
+}
+
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
   location = var.location
@@ -77,6 +82,11 @@ resource "azurerm_linux_function_app" "main" {
   site_config {
     application_stack {
       node_version = "18"
+    }
+
+    cors {
+      allowed_origins     = [var.frontend_url]
+      support_credentials = true
     }
   }
 
