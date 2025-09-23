@@ -74,6 +74,10 @@ terraform plan
 terraform apply
 ```
 
+## Example Login Codes
+
+-   Client A Code: `1234`
+-   Client B Code: `5678`
 
 ## Architectural Decisions & Logic
 
@@ -92,9 +96,11 @@ All sensitive values (client codes, API keys) are stored as environment variable
 
 The Terraform state files (`.tfstate`), which contain sensitive output from the cloud provider, are also excluded from Git to prevent credential leaks.
 
-TODO: If developed further, there are some features that could be implemented.
+Testing the app is done manually, validating the complete user journey in both local and deployed environments.
 
-## Example Login Codes
+Some possible features that could be added if the app were to be developed further:
 
--   Client A Code: `1234`
--   Client B Code: `5678`
+- handle login with an actual authentication system
+- database
+- make the frontend prettier. implement next.js commerce or similar
+- unit and system tests + CI/CD
