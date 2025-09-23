@@ -30,9 +30,9 @@ function getProductData(clientId, context) {
 
         fs.createReadStream(filePath)
             .pipe(csvParser({
-                // This function transforms CSV headers to camelCase keys (e.g., "Product Name" -> "productName")
+                // this function transforms CSV headers to camelCase keys (e.g., "Product Name" -> "productName")
                 mapHeaders: ({ header }) => header.replace(/ /g, '_').replace(/([_]\w)/g, g => g[1].toUpperCase()).replace(/^[A-Z]/, (match) => match.toLowerCase()),
-                // This function attempts to convert strings to numbers and booleans
+                // this function attempts to convert strings to numbers
                 mapValues: ({ value }) => {
                     const number = Number(value);
                     if (!isNaN(number) && value.trim() !== '') { return number; }
@@ -45,7 +45,8 @@ function getProductData(clientId, context) {
                     productName: product.productName,
                     productCode: product.productCode,
                     availableStock: product.availableStock,
-                    retailPrice: product.retailPrice
+                    retailPrice: product.retailPrice,
+                    wholesalePrice: product.wholesalePrice
                 }));
                 productCache[clientId] = necessaryData;
                 context.log(`Successfully parsed and cached data for ${clientId}.`);

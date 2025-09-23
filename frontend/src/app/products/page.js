@@ -56,6 +56,7 @@ export default function ProductsPage() {
           <div key={product.productCode} className={styles.productCard}>
             <h2>{product.productName}</h2>
             <p className={styles.code}>Product Code: {product.productCode}</p>
+            <p className={styles.price}>Wholesale Price: €{product.wholesalePrice.toFixed(2)}</p>
             <p className={styles.price}>Retail Price: €{product.retailPrice.toFixed(2)}</p>
             <p>Available Stock: {product.availableStock}</p>
           </div>
